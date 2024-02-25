@@ -2,7 +2,7 @@ module Tonally exposing (main)
 
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (class, classList, disabled)
+import Html.Attributes exposing (attribute, class, classList, disabled)
 import Html.Events exposing (onClick)
 
 
@@ -195,7 +195,7 @@ updateSelection selection words =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ attribute "role" "main" ]
         [ p [ class "phrase" ] [ text model.text ]
         , p [ class "phrase" ] [ text (viewSelectedPinyin model.isChecked model.options) ]
         , div [ class "options" ] <|
