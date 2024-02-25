@@ -1,0 +1,16 @@
+{
+  "name": "tonally",
+  "private": true,
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "build": "make"
+  },
+  "author": "James Finnie-Ansley",
+  "license": "MIT",
+  "dependencies": {
+    "elm": "^0.19.1-6",
+    "uglify-js": "^3.17.4"
+  }
+}
