@@ -1,0 +1,138 @@
+:root {
+    box-sizing: border-box;
+    font-family: Helvetica, SimSun, pingfang SC, Microsoft YaHei, serif;
+
+    --primary: black;
+    --surface-alt: #CDCDCD;
+    --primary-alt: #333333;
+
+    --border-width: 0.15em;
+    --border-radius: 0.5em;
+
+    --Huge: 2.5rem;
+    --huge: 2rem;
+    --Large: 1.5rem;
+    --large: 1.2rem;
+    --normal: 1rem;
+}
+
+button {
+    all: unset;
+}
+
+button:focus {
+    text-decoration: underline;
+    outline: 0.2em dashed black;
+    outline-offset: 0.125em;
+    z-index: 1;
+}
+
+button:hover {
+    background-color: var(--surface-alt);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+button:disabled {
+    background-color: var(--surface-alt);
+    border-color: var(--primary-alt);
+    text-decoration: line-through;
+    color: var(--primary-alt);
+    cursor: not-allowed;
+}
+
+button, .answer {
+    user-select: none;
+}
+
+.phrase {
+    text-align: center;
+    font-size: var(--huge);
+    line-height: 1em;
+}
+
+.options {
+    font-size: var(--Large);
+    display: flex;
+    gap: 2ch;
+    justify-content: center;
+}
+
+.word {
+    display: flex;
+}
+
+.syllable {
+    display: flex;
+    flex-direction: column;
+}
+
+.option {
+    padding: 1em;
+    letter-spacing: 1px;
+}
+
+.option.selected {
+    font-weight: bold;
+    letter-spacing: 0;
+    background-color: var(--surface-alt);
+}
+
+.button-bar {
+    font-size: var(--huge);
+    display: flex;
+}
+
+.check-button {
+    padding: 0.5em 2em;
+    border-radius: var(--border-radius);
+    border: var(--border-width) solid black;
+    margin: auto;
+}
+
+.answer {
+    font-size: var(--Large);
+    text-align: center;
+    height: 1em;
+    margin: 0.25em 0 1em 0;
+}
+
+.syllable:first-of-type .option {
+    border-left: var(--border-width) solid var(--primary);
+}
+
+.syllable:last-of-type .option {
+    border-right: var(--border-width) solid var(--primary);
+}
+
+.syllable:not(:first-of-type) .option {
+    border-left: calc(var(--border-width) / 2) solid var(--primary);
+}
+
+.syllable:not(:last-of-type) .option {
+    border-right: calc(var(--border-width) / 2) solid var(--primary);
+}
+
+.option:last-of-type {
+    border-bottom: var(--border-width) solid var(--primary);
+}
+
+.option:first-of-type {
+    border-top: var(--border-width) solid var(--primary);
+}
+
+.syllable:first-of-type .option:first-of-type {
+    border-top-left-radius: var(--border-radius);
+}
+
+.syllable:last-of-type .option:first-of-type {
+    border-top-right-radius: var(--border-radius);
+}
+
+.syllable:first-of-type .option:last-of-type {
+    border-bottom-left-radius: var(--border-radius);
+}
+
+.syllable:last-of-type .option:last-of-type {
+    border-bottom-right-radius: var(--border-radius);
+}
