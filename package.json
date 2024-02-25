@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "description": "",
-  "main": "index.html",
+  "main": "site/index.html",
   "scripts": {
     "build": "make build"
   },

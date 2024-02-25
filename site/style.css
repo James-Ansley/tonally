@@ -5,11 +5,11 @@
     --surface-alt: #caccce;
 }
 
-:root.dark {
+:root[data-theme="dark"] {
     --primary: rgba(255, 255, 255, 0.85);
     --primary-alt: rgba(217, 217, 217, 0.85);
     --surface: #242424;
-    --surface-alt: hsla(0, 0%, 37%, 0.48);
+    --surface-alt: hsla(0, 0%, 40%, 0.48);
 }
 
 :root {

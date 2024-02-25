@@ -20,7 +20,7 @@ main =
         }
 
 
-port changeTheme : Bool -> Cmd msg
+port toggleTheme : () -> Cmd msg
 
 
 
@@ -28,11 +28,11 @@ port changeTheme : Bool -> Cmd msg
 
 
 type alias Model =
-    { text : String, options : List Word, isChecked : Bool, isLightTheme : Bool }
+    { text : String, options : List Word, isChecked : Bool }
 
 
-init : Bool -> ( Model, Cmd Msg )
-init prefersDark =
+init : () -> ( Model, Cmd Msg )
+init _ =
     ( { text = "我不喜欢苦的咖啡"
       , options =
             [ [ Syllable "wō" "wó" "wǒ" "wò" "wo" Nothing Third ]
@@ -47,7 +47,6 @@ init prefersDark =
               ]
             ]
       , isChecked = False
-      , isLightTheme = not prefersDark
       }
     , Cmd.none
     )
@@ -105,9 +104,7 @@ update msg model =
                 ( model, Cmd.none )
 
         ToggleLightMode ->
-            ( { model | isLightTheme = not model.isLightTheme }
-            , changeTheme (not model.isLightTheme)
-            )
+            ( model, toggleTheme () )
 
 
 updateSelection : SelectionOptions -> List Word -> List Word

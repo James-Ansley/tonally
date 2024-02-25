@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Tonally</title>
+  <meta charset="UTF-8">
+  <link href="style.css" rel="stylesheet">
+  <script src="scripts/theme.js"></script>
+</head>
+
+<body>
+<div id="app"></div>
+
+<script src="elm.min.js"></script>
+<script>
+    const app = Elm.Tonally.init({node: document.getElementById("app")})
+    app.ports.toggleTheme.subscribe(toggleTheme)
+</script>
+</body>
+</html>
