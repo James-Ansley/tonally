@@ -1,4 +1,4 @@
-module Tonally exposing (main)
+port module Tonally exposing (main)
 
 import Browser
 import Html exposing (..)
@@ -20,16 +20,19 @@ main =
         }
 
 
+port changeTheme : Bool -> Cmd msg
+
+
 
 -- MODEL
 
 
 type alias Model =
-    { text : String, options : List Word, isChecked : Bool }
+    { text : String, options : List Word, isChecked : Bool, isLightTheme : Bool }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
+init : Bool -> ( Model, Cmd Msg )
+init prefersDark =
     ( { text = "我不喜欢苦的咖啡"
       , options =
             [ [ Syllable "wō" "wó" "wǒ" "wò" "wo" Nothing Third ]
@@ -44,6 +47,7 @@ init _ =
               ]
             ]
       , isChecked = False
+      , isLightTheme = not prefersDark
       }
     , Cmd.none
     )
@@ -78,6 +82,7 @@ checkSymbol isChecked isCorrect showCorrect =
 type Msg
     = Selection SelectionOptions
     | Check
+    | ToggleLightMode
 
 
 type alias SelectionOptions =
@@ -98,6 +103,11 @@ update msg model =
 
             else
                 ( model, Cmd.none )
+
+        ToggleLightMode ->
+            ( { model | isLightTheme = not model.isLightTheme }
+            , changeTheme (not model.isLightTheme)
+            )
 
 
 updateSelection : SelectionOptions -> List Word -> List Word
@@ -129,7 +139,8 @@ updateSelection selection words =
 view : Model -> Html Msg
 view model =
     div [ attribute "role" "main" ]
-        [ p [ class "phrase" ] [ text model.text ]
+        [ button [ onClick ToggleLightMode ] [ text "Toggle Light/Dark" ]
+        , p [ class "phrase" ] [ text model.text ]
         , p [ class "phrase" ] [ text (viewSelectedPinyin model.isChecked model.options) ]
         , div [ class "options" ] <|
             List.indexedMap (viewWord model.isChecked) model.options

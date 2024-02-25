@@ -1,5 +1,5 @@
+node_modules
 elm-stuff
+build
 elm.js
 elm.min.js
-node_modules
-build

@@ -3,7 +3,7 @@
 <head>
   <title>Tonally</title>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="style.css">
+  <link href="style.css" rel="stylesheet">
 </head>
 
 <body>
@@ -11,7 +11,27 @@
 
 <script src="elm.min.js"></script>
 <script>
-    Elm.Tonally.init({node: document.getElementById("app")})
+    const prefersDark =
+        window.matchMedia
+        && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (prefersDark) {
+        document.documentElement.classList.add("dark");
+    }
+
+    const app = Elm.Tonally.init({
+        node: document.getElementById("app"),
+        flags: prefersDark
+    })
+
+    app.ports.changeTheme.subscribe(isLight => {
+        if (isLight) {
+            document.documentElement.classList.remove("dark");
+        } else {
+            document.documentElement.classList.add("dark");
+        }
+    })
+
 </script>
 </body>
 </html>

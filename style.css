@@ -1,10 +1,21 @@
 :root {
+    --primary: #192734;
+    --primary-alt: #384047;
+    --surface: #f2f2f2;
+    --surface-alt: #caccce;
+}
+
+:root.dark {
+    --primary: rgba(255, 255, 255, 0.85);
+    --primary-alt: rgba(217, 217, 217, 0.85);
+    --surface: #242424;
+    --surface-alt: hsla(0, 0%, 37%, 0.48);
+}
+
+:root {
+    color: var(--primary);
     box-sizing: border-box;
     font-family: Helvetica, SimSun, pingfang SC, Microsoft YaHei, serif;
-
-    --primary: black;
-    --surface-alt: #CDCDCD;
-    --primary-alt: #333333;
 
     --border-width: 0.15em;
     --border-radius: 0.5em;
@@ -16,13 +27,18 @@
     --normal: 1rem;
 }
 
+
+body {
+    background-color: var(--surface);
+}
+
 button {
     all: unset;
 }
 
 button:focus {
     text-decoration: underline;
-    outline: 0.2em dashed black;
+    outline: 0.2em dashed var(--primary);
     outline-offset: 0.125em;
     z-index: 1;
 }
@@ -86,7 +102,7 @@ button, .answer {
 .check-button {
     padding: 0.5em 2em;
     border-radius: var(--border-radius);
-    border: var(--border-width) solid black;
+    border: var(--border-width) solid var(--primary);
     margin: auto;
 }
 
