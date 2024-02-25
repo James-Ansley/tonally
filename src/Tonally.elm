@@ -58,16 +58,16 @@ canCheck hasChecked words =
         Syllable.allSelected words
 
 
-checkSymbol : Bool -> Bool -> String
-checkSymbol isChecked isCorrect =
-    case ( isChecked, isCorrect ) of
-        ( True, True ) ->
+checkSymbol : Bool -> Bool -> Bool -> String
+checkSymbol isChecked isCorrect showCorrect =
+    case ( isChecked, isCorrect, showCorrect ) of
+        ( True, True, True ) ->
             "✓"
 
-        ( True, False ) ->
+        ( True, False, _ ) ->
             "✗"
 
-        ( False, _ ) ->
+        _ ->
             ""
 
 
@@ -160,7 +160,7 @@ viewSelectedPinyin isChecked words =
         " "
         (List.map writeWord words)
         ++ " "
-        ++ checkSymbol isChecked (Syllable.allCorrect words)
+        ++ checkSymbol isChecked (Syllable.allCorrect words) True
 
 
 viewWord : Bool -> Int -> Word -> Html Msg
@@ -184,7 +184,7 @@ viewWord isChecked wordIndex word =
         viewChecked : Syllable -> Html Msg
         viewChecked syllable =
             div [ class "answer" ]
-                [ text (checkSymbol isChecked (Syllable.isCorrect syllable)) ]
+                [ text (checkSymbol isChecked (Syllable.isCorrect syllable) False) ]
 
         viewSyllable : Int -> Syllable -> Html Msg
         viewSyllable syllableIndex syllable =
