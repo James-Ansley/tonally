@@ -35,12 +35,12 @@ type Tone
     = First
     | Second
     | Third
-    | Forth
+    | Fourth
     | Fifth
 
 
 tones =
-    [ First, Second, Third, Forth, Fifth ]
+    [ First, Second, Third, Fourth, Fifth ]
 
 
 type alias Syllable =
@@ -63,7 +63,7 @@ init _ =
     ( { text = "我不喜欢苦的咖啡"
       , options =
             [ [ Syllable "wō" "wó" "wǒ" "wò" "wo" Nothing Third ]
-            , [ Syllable "bū" "bú" "bǔ" "bù" "bu" Nothing Forth ]
+            , [ Syllable "bū" "bú" "bǔ" "bù" "bu" Nothing Fourth ]
             , [ Syllable "xī" "xí" "xǐ" "xì" "xi" Nothing Third
               , Syllable "huān" "huán" "huǎn" "huàn" "huan" Nothing First
               ]
@@ -77,6 +77,21 @@ init _ =
       }
     , Cmd.none
     )
+
+
+
+-- { text = "我是新西兰人"
+--      , options =
+--            [ [ Syllable "wō" "wó" "wǒ" "wò" "wo" Nothing Third ]
+--            , [ Syllable "shī" "shí" "shǐ" "shì" "shi" Nothing Forth ]
+--            , [ Syllable "xīn" "xín" "xǐn" "xìn" "xin" Nothing First
+--              , Syllable "xī" "xí" "xǐ" "xì" "xi" Nothing First
+--              , Syllable "lān" "lán" "lǎn" "làn" "lan" Nothing Second
+--              ]
+--            , [ Syllable "rēn" "rén" "rěn" "rèn" "ren" Nothing Second ]
+--            ]
+--      , isChecked = False
+--      }
 
 
 canCheck : Bool -> List Word -> Bool
@@ -110,7 +125,7 @@ selectedSyllableTone tone syllable =
         Third ->
             syllable.third
 
-        Forth ->
+        Fourth ->
             syllable.forth
 
         Fifth ->
@@ -131,18 +146,6 @@ checkSymbol isChecked isCorrect =
 
 
 
--- { text = "我是新西兰人"
---      , options =
---            [ [ Syllable "wō" "wó" "wǒ" "wò" "wo" Nothing Third ]
---            , [ Syllable "shī" "shí" "shǐ" "shì" "shi" Nothing Forth ]
---            , [ Syllable "xīn" "xín" "xǐn" "xìn" "xin" Nothing First
---              , Syllable "xī" "xí" "xǐ" "xì" "xi" Nothing First
---              , Syllable "lān" "lán" "lǎn" "làn" "lan" Nothing Second
---              ]
---            , [ Syllable "rēn" "rén" "rěn" "rèn" "ren" Nothing Second ]
---            ]
---      , isChecked = False
---      }
 -- UPDATE
 
 
