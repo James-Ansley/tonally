@@ -5,7 +5,7 @@
   "description": "",
   "main": "index.html",
   "scripts": {
-    "build": "make"
+    "build": "make build"
   },
   "author": "James Finnie-Ansley",
   "license": "MIT",
