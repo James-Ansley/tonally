@@ -4,6 +4,7 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, classList, disabled)
 import Html.Events exposing (onClick)
+import Syllable exposing (Syllable, Tone(..), Word, tones)
 
 
 
@@ -27,37 +28,6 @@ type alias Model =
     { text : String, options : List Word, isChecked : Bool }
 
 
-type alias Word =
-    List Syllable
-
-
-type Tone
-    = First
-    | Second
-    | Third
-    | Fourth
-    | Fifth
-
-
-tones =
-    [ First, Second, Third, Fourth, Fifth ]
-
-
-type alias Syllable =
-    { first : String
-    , second : String
-    , third : String
-    , forth : String
-    , fifth : String
-    , selection : Maybe Tone
-    , correct : Tone
-    }
-
-
-type alias SelectionOptions =
-    { wordIndex : Int, syllableIndex : Int, tone : Tone }
-
-
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { text = "我不喜欢苦的咖啡"
@@ -79,57 +49,13 @@ init _ =
     )
 
 
-
--- { text = "我是新西兰人"
---      , options =
---            [ [ Syllable "wō" "wó" "wǒ" "wò" "wo" Nothing Third ]
---            , [ Syllable "shī" "shí" "shǐ" "shì" "shi" Nothing Forth ]
---            , [ Syllable "xīn" "xín" "xǐn" "xìn" "xin" Nothing First
---              , Syllable "xī" "xí" "xǐ" "xì" "xi" Nothing First
---              , Syllable "lān" "lán" "lǎn" "làn" "lan" Nothing Second
---              ]
---            , [ Syllable "rēn" "rén" "rěn" "rèn" "ren" Nothing Second ]
---            ]
---      , isChecked = False
---      }
-
-
 canCheck : Bool -> List Word -> Bool
 canCheck hasChecked words =
     if hasChecked then
         False
 
     else
-        List.all (List.all (\s -> s.selection /= Nothing)) words
-
-
-syllableIsCorrect : Syllable -> Bool
-syllableIsCorrect syllable =
-    syllable.selection == Just syllable.correct
-
-
-answerIsCorrect : List Word -> Bool
-answerIsCorrect words =
-    List.all (List.all syllableIsCorrect) words
-
-
-selectedSyllableTone : Tone -> Syllable -> String
-selectedSyllableTone tone syllable =
-    case tone of
-        First ->
-            syllable.first
-
-        Second ->
-            syllable.second
-
-        Third ->
-            syllable.third
-
-        Fourth ->
-            syllable.forth
-
-        Fifth ->
-            syllable.fifth
+        Syllable.allSelected words
 
 
 checkSymbol : Bool -> Bool -> String
@@ -152,6 +78,10 @@ checkSymbol isChecked isCorrect =
 type Msg
     = Selection SelectionOptions
     | Check
+
+
+type alias SelectionOptions =
+    { wordIndex : Int, syllableIndex : Int, tone : Tone }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -220,7 +150,7 @@ viewSelectedPinyin isChecked words =
     let
         writeSyllable : Syllable -> String
         writeSyllable syllable =
-            selectedSyllableTone (Maybe.withDefault Fifth syllable.selection) syllable
+            Syllable.getTone (Maybe.withDefault Fifth syllable.selection) syllable
 
         writeWord : Word -> String
         writeWord word =
@@ -230,7 +160,7 @@ viewSelectedPinyin isChecked words =
         " "
         (List.map writeWord words)
         ++ " "
-        ++ checkSymbol isChecked (answerIsCorrect words)
+        ++ checkSymbol isChecked (Syllable.allCorrect words)
 
 
 viewWord : Bool -> Int -> Word -> Html Msg
@@ -249,12 +179,12 @@ viewWord isChecked wordIndex word =
                         }
                     )
                 ]
-                [ text (selectedSyllableTone tone syllable) ]
+                [ text (Syllable.getTone tone syllable) ]
 
         viewChecked : Syllable -> Html Msg
         viewChecked syllable =
             div [ class "answer" ]
-                [ text (checkSymbol isChecked (syllableIsCorrect syllable)) ]
+                [ text (checkSymbol isChecked (Syllable.isCorrect syllable)) ]
 
         viewSyllable : Int -> Syllable -> Html Msg
         viewSyllable syllableIndex syllable =
