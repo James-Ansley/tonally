@@ -26,5 +26,6 @@ site/elm.js : src
 	elm make --optimize --output=${source}/${out} ${in}
 
 clean :
-	rm -f ${source}/${out}
+	# Hard-coding so there is isn't any funny business if source or build are empty strings or slashes
+	rm -f site/elm.js
 	rm -rf build
