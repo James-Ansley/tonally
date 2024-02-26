@@ -9,8 +9,12 @@
   },
   "author": "James Finnie-Ansley",
   "license": "MIT",
-  "dependencies": {
+  "devDependencies": {
+    "clean-css-cli": "^5.6.3",
     "elm": "^0.19.1-6",
     "uglify-js": "^3.17.4"
+  },
+  "dependencies": {
+    "html-minifier": "^4.0.0"
   }
 }

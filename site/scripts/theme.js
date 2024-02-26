@@ -1,12 +1,15 @@
+/** @private */
 const LIGHT = "light"
+/** @private */
 const DARK = "dark"
 
+/** @private */
 function updateTheme(newTheme) {
     localStorage.setItem("theme", newTheme);
     document.documentElement.setAttribute("data-theme", newTheme)
 }
 
-
+/** @private */
 function getTheme() {
     const localStorageTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
@@ -19,7 +22,6 @@ function getTheme() {
         return LIGHT
     }
 }
-
 
 function toggleTheme() {
     updateTheme(getTheme() === DARK ? LIGHT : DARK)
