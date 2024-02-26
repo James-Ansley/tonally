@@ -17,7 +17,8 @@
     box-sizing: border-box;
     font-family: Helvetica, SimSun, pingfang SC, Microsoft YaHei, serif;
 
-    --border-width: 0.15em;
+    --border-width: 0.225rem;
+    --outline-width: 0.3rem;
     --border-radius: 0.5em;
 
     --Huge: 2.5rem;
@@ -34,11 +35,12 @@ body {
 
 button {
     all: unset;
+    padding: 0.5em;
 }
 
 button:focus {
     text-decoration: underline;
-    outline: 0.2em dashed var(--primary);
+    outline: var(--outline-width) dashed var(--primary);
     outline-offset: 0.125em;
     z-index: 1;
 }
