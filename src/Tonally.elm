@@ -3,7 +3,7 @@ port module Tonally exposing (main)
 import Array exposing (Array)
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (accesskey, attribute, checked, class, classList, disabled, for, id, name, type_, value)
+import Html.Attributes exposing (attribute, checked, class, classList, disabled, name, type_, value)
 import Html.Events exposing (onClick, onFocus)
 import Phrases exposing (Phrase, phrases)
 import Random
@@ -181,20 +181,18 @@ view model =
         case model of
             Error message ->
                 [ button
-                    [ onClick ToggleLightMode
-                    , accesskey 't'
-                    ]
+                    [ onClick ToggleLightMode ]
                     [ text "toggle light/dark" ]
                 , p [ class "message" ] [ text message ]
                 ]
 
             Loading ->
-                [ button [ onClick ToggleLightMode, accesskey 't' ] [ text "toggle light/dark" ]
+                [ button [ onClick ToggleLightMode ] [ text "toggle light/dark" ]
                 , p [ class "message" ] [ text "loading..." ]
                 ]
 
             Loaded _ _ question ->
-                [ button [ onClick ToggleLightMode, accesskey 't' ] [ text "toggle light/dark" ]
+                [ button [ onClick ToggleLightMode ] [ text "toggle light/dark" ]
                 , p [ class "phrase" ] [ text question.text ]
                 , p [ class "phrase" ] [ text (viewSelectedPinyin question.isChecked question.options) ]
                 , div [ class "options" ] <|
@@ -205,14 +203,10 @@ view model =
                         [ class "bottom-button"
                         , disabled (not (canCheck question.isChecked question.options))
                         , onClick Check
-                        , accesskey 'c'
                         ]
                         [ text "check" ]
                     , button
-                        [ class "bottom-button"
-                        , onClick RequestNewPhrase
-                        , accesskey 'a'
-                        ]
+                        [ class "bottom-button", onClick RequestNewPhrase ]
                         [ text "try another" ]
                     ]
                 ]
@@ -242,6 +236,16 @@ viewWord isChecked wordIndex word =
             let
                 syllableText =
                     Syllable.getTone tone syllable
+
+                groupName =
+                    String.concat
+                        [ Syllable.getTone Fifth syllable
+                        , String.fromInt wordIndex
+                        , String.fromInt syllableIndex
+                        ]
+
+                selectEvent =
+                    Selection { wordIndex = wordIndex, syllableIndex = syllableIndex, tone = tone }
             in
             label
                 [ class "option"
@@ -250,17 +254,11 @@ viewWord isChecked wordIndex word =
                 [ span [ class "option-label" ] [ text syllableText ]
                 , input
                     [ type_ "radio"
-                    , name
-                        (String.concat
-                            [ Syllable.getTone Fifth syllable
-                            , String.fromInt wordIndex
-                            , String.fromInt syllableIndex
-                            ]
-                        )
+                    , name groupName
                     , value syllableText
                     , checked (syllable.selection == Just tone)
-                    , onClick (Selection { wordIndex = wordIndex, syllableIndex = syllableIndex, tone = tone })
-                    , onFocus (Selection { wordIndex = wordIndex, syllableIndex = syllableIndex, tone = tone })
+                    , onClick selectEvent
+                    , onFocus selectEvent
                     ]
                     []
                 ]
