@@ -1,9 +1,13 @@
 port module Tonally exposing (main)
 
+import Array exposing (Array)
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, classList, disabled)
 import Html.Events exposing (onClick)
+import Phrases exposing (Phrase, phrases)
+import Random
+import Random.Array
 import Syllable exposing (Syllable, Tone(..), Word, tones)
 
 
@@ -27,28 +31,20 @@ port toggleTheme : () -> Cmd msg
 -- MODEL
 
 
-type alias Model =
+type alias Question =
     { text : String, options : List Word, isChecked : Bool }
+
+
+type Model
+    = Loading
+    | Error String
+    | Loaded (Array Phrase) Int Question
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { text = "我不喜欢苦的咖啡"
-      , options =
-            [ [ Syllable "wō" "wó" "wǒ" "wò" "wo" Nothing Third ]
-            , [ Syllable "bū" "bú" "bǔ" "bù" "bu" Nothing Fourth ]
-            , [ Syllable "xī" "xí" "xǐ" "xì" "xi" Nothing Third
-              , Syllable "huān" "huán" "huǎn" "huàn" "huan" Nothing First
-              ]
-            , [ Syllable "kū" "kú" "kǔ" "kù" "ku" Nothing Third ]
-            , [ Syllable "dē" "dé" "dě" "dè" "de" Nothing Fifth ]
-            , [ Syllable "kā" "ká" "kǎ" "kà" "ka" Nothing First
-              , Syllable "fēi" "féi" "fěi" "fèi" "fei" Nothing First
-              ]
-            ]
-      , isChecked = False
-      }
-    , Cmd.none
+    ( Loading
+    , Random.generate LoadPhrases (Random.Array.shuffle phrases)
     )
 
 
@@ -61,17 +57,27 @@ canCheck hasChecked words =
         Syllable.allSelected words
 
 
-checkSymbol : Bool -> Bool -> Bool -> String
-checkSymbol isChecked isCorrect showCorrect =
-    case ( isChecked, isCorrect, showCorrect ) of
-        ( True, True, True ) ->
-            "✓"
+check : String
+check =
+    "✓"
 
-        ( True, False, _ ) ->
-            "✗"
 
-        _ ->
-            ""
+cross : String
+cross =
+    "✗"
+
+
+feedbackSymbol : String -> String -> String -> Bool -> Bool -> String
+feedbackSymbol ifCorrect ifIncorrect ifHidden isChecked isCorrect =
+    case ( isChecked, isCorrect ) of
+        ( True, True ) ->
+            ifCorrect
+
+        ( True, False ) ->
+            ifIncorrect
+
+        ( False, _ ) ->
+            ifHidden
 
 
 
@@ -79,9 +85,11 @@ checkSymbol isChecked isCorrect showCorrect =
 
 
 type Msg
-    = Selection SelectionOptions
+    = LoadPhrases (Array Phrase)
+    | Selection SelectionOptions
     | Check
     | ToggleLightMode
+    | RequestNewPhrase
 
 
 type alias SelectionOptions =
@@ -90,21 +98,51 @@ type alias SelectionOptions =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        Selection selection ->
-            ( { model | options = updateSelection selection model.options }
+    case ( model, msg ) of
+        ( _, LoadPhrases phrases ) ->
+            ( updateCurrentQuestion "Cannot load questions" phrases 0, Cmd.none )
+
+        ( Error _, _ ) ->
+            ( model, Cmd.none )
+
+        ( Loaded phrases index question, Selection selection ) ->
+            ( Loaded phrases index { question | options = updateSelection selection question.options }
             , Cmd.none
             )
 
-        Check ->
-            if canCheck model.isChecked model.options then
-                ( { model | isChecked = True }, Cmd.none )
+        ( Loaded phrases index question, Check ) ->
+            if canCheck question.isChecked question.options then
+                ( Loaded phrases index { question | isChecked = True }, Cmd.none )
 
             else
                 ( model, Cmd.none )
 
-        ToggleLightMode ->
+        ( Loaded phrases index _, RequestNewPhrase ) ->
+            let
+                newIndex =
+                    modBy (Array.length phrases) (index + 1)
+            in
+            ( updateCurrentQuestion "Cannot Load New Phrase" phrases newIndex, Cmd.none )
+
+        ( _, ToggleLightMode ) ->
             ( model, toggleTheme () )
+
+        ( Loading, _ ) ->
+            ( model, Cmd.none )
+
+
+updateCurrentQuestion : String -> Array Phrase -> Int -> Model
+updateCurrentQuestion errorMsg phrases newQuestionIndex =
+    let
+        question =
+            Array.get newQuestionIndex phrases
+    in
+    case question of
+        Just phrase ->
+            Loaded phrases newQuestionIndex { text = phrase.text, options = phrase.options, isChecked = False }
+
+        Nothing ->
+            Error errorMsg
 
 
 updateSelection : SelectionOptions -> List Word -> List Word
@@ -135,22 +173,37 @@ updateSelection selection words =
 
 view : Model -> Html Msg
 view model =
-    div [ attribute "role" "main" ]
-        [ button [ onClick ToggleLightMode ] [ text "Toggle Light/Dark" ]
-        , p [ class "phrase" ] [ text model.text ]
-        , p [ class "phrase" ] [ text (viewSelectedPinyin model.isChecked model.options) ]
-        , div [ class "options" ] <|
-            List.indexedMap (viewWord model.isChecked) model.options
-        , div
-            [ class "button-bar" ]
-            [ button
-                [ class "check-button"
-                , disabled (not (canCheck model.isChecked model.options))
-                , onClick Check
+    div [ attribute "role" "main" ] <|
+        case model of
+            Error message ->
+                [ button [ onClick ToggleLightMode ] [ text "toggle light/dark" ]
+                , p [ class "message" ] [ text message ]
                 ]
-                [ text "check" ]
-            ]
-        ]
+
+            Loading ->
+                [ button [ onClick ToggleLightMode ] [ text "toggle light/dark" ]
+                , p [ class "message" ] [ text "loading..." ]
+                ]
+
+            Loaded _ _ question ->
+                [ button [ onClick ToggleLightMode ] [ text "toggle light/dark" ]
+                , p [ class "phrase" ] [ text question.text ]
+                , p [ class "phrase" ] [ text (viewSelectedPinyin question.isChecked question.options) ]
+                , div [ class "options" ] <|
+                    List.indexedMap (viewWord question.isChecked) question.options
+                , div
+                    [ class "button-bar" ]
+                    [ button
+                        [ class "bottom-button"
+                        , disabled (not (canCheck question.isChecked question.options))
+                        , onClick Check
+                        ]
+                        [ text "check" ]
+                    , button
+                        [ class "bottom-button", onClick RequestNewPhrase ]
+                        [ text "try another" ]
+                    ]
+                ]
 
 
 viewSelectedPinyin : Bool -> List Word -> String
@@ -164,11 +217,9 @@ viewSelectedPinyin isChecked words =
         writeWord word =
             String.concat (List.map writeSyllable word)
     in
-    String.join
-        " "
-        (List.map writeWord words)
+    String.join " " (List.map writeWord words)
         ++ " "
-        ++ checkSymbol isChecked (Syllable.allCorrect words) True
+        ++ feedbackSymbol check cross "" isChecked (Syllable.allCorrect words)
 
 
 viewWord : Bool -> Int -> Word -> Html Msg
@@ -180,19 +231,14 @@ viewWord isChecked wordIndex word =
                 [ class "option"
                 , classList [ ( "selected", syllable.selection == Just tone ) ]
                 , onClick
-                    (Selection
-                        { wordIndex = wordIndex
-                        , syllableIndex = syllableIndex
-                        , tone = tone
-                        }
-                    )
+                    (Selection { wordIndex = wordIndex, syllableIndex = syllableIndex, tone = tone })
                 ]
                 [ text (Syllable.getTone tone syllable) ]
 
         viewChecked : Syllable -> Html Msg
         viewChecked syllable =
             div [ class "answer" ]
-                [ text (checkSymbol isChecked (Syllable.isCorrect syllable) False) ]
+                [ text (feedbackSymbol "" cross "" isChecked (Syllable.isCorrect syllable)) ]
 
         viewSyllable : Int -> Syllable -> Html Msg
         viewSyllable syllableIndex syllable =

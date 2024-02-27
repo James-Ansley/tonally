@@ -58,6 +58,11 @@ button:disabled {
     cursor: not-allowed;
 }
 
+.message {
+    font-size: var(--Huge);
+    text-align: center;
+}
+
 button, .answer {
     user-select: none;
 }
@@ -98,13 +103,14 @@ button, .answer {
 .button-bar {
     font-size: var(--huge);
     display: flex;
+    gap: 2ch;
+    justify-content: center;
 }
 
-.check-button {
+.bottom-button {
     padding: 0.5em 2em;
     border-radius: var(--border-radius);
     border: var(--border-width) solid var(--primary);
-    margin: auto;
 }
 
 .answer {

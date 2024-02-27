@@ -1,8 +1,8 @@
 in := src/Tonally.elm
 out := elm.js
 
-source := site
-build := build
+source := ./site
+build := ./build
 
 cleanCssOpts := -O1 all:on -O2 all:on
 htmlMinifierOpts := --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --minify-css true --minify-js true
@@ -22,10 +22,22 @@ build : src site
 
 	@echo DONE!
 
-site/elm.js : src
+site/elm.js : src checks
 	elm make --optimize --output=${source}/${out} ${in}
 
-clean :
-	# Hard-coding so there is isn't any funny business if source or build are empty strings or slashes
-	rm -f site/elm.js
-	rm -rf build
+clean : checks
+	rm -f ${source}/elm.js
+	rm -rf ${build}
+
+checks :
+	@if [[ -z "${build}" || ${build} -ef $$HOME || ${build} -ef / ]]; then \
+  		echo "Build directory is: \`${build}\`" >&2; \
+  		echo "Build directory should not be root, home, or empty" >&2; \
+  		exit 1; \
+	fi
+
+	@if [[ -z "${source}" || ${source} -ef $$HOME || ${source} -ef / ]]; then \
+  		echo "Source directory is: \`${source}\`" >&2; \
+  		echo "Source directory should not be root, home, or empty" >&2; \
+  		exit 1; \
+	fi
