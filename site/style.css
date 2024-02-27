@@ -1,15 +1,15 @@
 :root {
     --primary: #192734;
     --primary-alt: #384047;
-    --surface: #f2f2f2;
-    --surface-alt: #caccce;
+    --background: #f2f2f2;
+    --surface: #caccce;
 }
 
 :root[data-theme="dark"] {
     --primary: rgba(255, 255, 255, 0.85);
     --primary-alt: rgba(217, 217, 217, 0.85);
-    --surface: #242424;
-    --surface-alt: hsla(0, 0%, 40%, 0.48);
+    --background: #242424;
+    --surface: hsla(0, 0%, 40%, 0.48);
 }
 
 :root {
@@ -29,29 +29,29 @@
 }
 
 body {
-    background-color: var(--surface);
+    background-color: var(--background);
 }
 
-button {
+button, input {
     all: unset;
     padding: 0.5em;
 }
 
-button:focus {
+button:focus, input:focus {
     text-decoration: underline;
     outline: var(--outline-width) dashed var(--primary);
     outline-offset: 0.125em;
     z-index: 1;
 }
 
-button:hover {
-    background-color: var(--surface-alt);
+button:hover, input:hover, .option:hover {
+    background-color: var(--surface);
     cursor: pointer;
     text-decoration: underline;
 }
 
-button:disabled {
-    background-color: var(--surface-alt);
+button:disabled, input:disabled {
+    background-color: var(--surface);
     border-color: var(--primary-alt);
     text-decoration: line-through;
     color: var(--primary-alt);
@@ -63,7 +63,7 @@ button:disabled {
     text-align: center;
 }
 
-button, .answer {
+button, .answer, label   {
     user-select: none;
 }
 
@@ -92,12 +92,26 @@ button, .answer {
 .option {
     padding: 1em;
     letter-spacing: 1px;
+    position: relative;
+}
+
+.option input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.option .option-label {
+    z-index: 2;
+    position: sticky;
 }
 
 .option.selected {
     font-weight: bold;
     letter-spacing: 0;
-    background-color: var(--surface-alt);
+    background-color: var(--surface);
 }
 
 .button-bar {
@@ -120,42 +134,46 @@ button, .answer {
     margin: 0.25em 0 1em 0;
 }
 
-.syllable:first-of-type .option {
+.syllable:first-of-type .option input {
     border-left: var(--border-width) solid var(--primary);
 }
 
-.syllable:last-of-type .option {
+.syllable:last-of-type .option input {
     border-right: var(--border-width) solid var(--primary);
 }
 
-.syllable:not(:first-of-type) .option {
+.syllable:not(:first-of-type) .option input {
     border-left: calc(var(--border-width) / 2) solid var(--primary);
 }
 
-.syllable:not(:last-of-type) .option {
+.syllable:not(:last-of-type) .option input {
     border-right: calc(var(--border-width) / 2) solid var(--primary);
 }
 
-.option:last-of-type {
+.option:last-of-type input {
     border-bottom: var(--border-width) solid var(--primary);
 }
 
-.option:first-of-type {
+.option:first-of-type input {
     border-top: var(--border-width) solid var(--primary);
 }
 
-.syllable:first-of-type .option:first-of-type {
+.syllable:first-of-type .option:first-of-type,
+.syllable:first-of-type .option:first-of-type input {
     border-top-left-radius: var(--border-radius);
 }
 
-.syllable:last-of-type .option:first-of-type {
+.syllable:last-of-type .option:first-of-type,
+.syllable:last-of-type .option:first-of-type input {
     border-top-right-radius: var(--border-radius);
 }
 
-.syllable:first-of-type .option:last-of-type {
+.syllable:first-of-type .option:last-of-type,
+.syllable:first-of-type .option:last-of-type input {
     border-bottom-left-radius: var(--border-radius);
 }
 
-.syllable:last-of-type .option:last-of-type {
+.syllable:last-of-type .option:last-of-type,
+.syllable:last-of-type .option:last-of-type input {
     border-bottom-right-radius: var(--border-radius);
 }

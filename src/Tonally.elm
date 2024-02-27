@@ -3,8 +3,8 @@ port module Tonally exposing (main)
 import Array exposing (Array)
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, classList, disabled)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (accesskey, attribute, checked, class, classList, disabled, for, id, name, type_, value)
+import Html.Events exposing (onClick, onFocus)
 import Phrases exposing (Phrase, phrases)
 import Random
 import Random.Array
@@ -100,7 +100,9 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( model, msg ) of
         ( _, LoadPhrases phrases ) ->
-            ( updateCurrentQuestion "Cannot load questions" phrases 0, Cmd.none )
+            ( updateCurrentQuestion "unexpected error: cannot load questions" phrases 0
+            , Cmd.none
+            )
 
         ( Error _, _ ) ->
             ( model, Cmd.none )
@@ -122,7 +124,9 @@ update msg model =
                 newIndex =
                     modBy (Array.length phrases) (index + 1)
             in
-            ( updateCurrentQuestion "Cannot Load New Phrase" phrases newIndex, Cmd.none )
+            ( updateCurrentQuestion "unexpected error: cannot load new phrase" phrases newIndex
+            , Cmd.none
+            )
 
         ( _, ToggleLightMode ) ->
             ( model, toggleTheme () )
@@ -176,17 +180,21 @@ view model =
     div [ attribute "role" "main" ] <|
         case model of
             Error message ->
-                [ button [ onClick ToggleLightMode ] [ text "toggle light/dark" ]
+                [ button
+                    [ onClick ToggleLightMode
+                    , accesskey 't'
+                    ]
+                    [ text "toggle light/dark" ]
                 , p [ class "message" ] [ text message ]
                 ]
 
             Loading ->
-                [ button [ onClick ToggleLightMode ] [ text "toggle light/dark" ]
+                [ button [ onClick ToggleLightMode, accesskey 't' ] [ text "toggle light/dark" ]
                 , p [ class "message" ] [ text "loading..." ]
                 ]
 
             Loaded _ _ question ->
-                [ button [ onClick ToggleLightMode ] [ text "toggle light/dark" ]
+                [ button [ onClick ToggleLightMode, accesskey 't' ] [ text "toggle light/dark" ]
                 , p [ class "phrase" ] [ text question.text ]
                 , p [ class "phrase" ] [ text (viewSelectedPinyin question.isChecked question.options) ]
                 , div [ class "options" ] <|
@@ -197,10 +205,14 @@ view model =
                         [ class "bottom-button"
                         , disabled (not (canCheck question.isChecked question.options))
                         , onClick Check
+                        , accesskey 'c'
                         ]
                         [ text "check" ]
                     , button
-                        [ class "bottom-button", onClick RequestNewPhrase ]
+                        [ class "bottom-button"
+                        , onClick RequestNewPhrase
+                        , accesskey 'a'
+                        ]
                         [ text "try another" ]
                     ]
                 ]
@@ -227,13 +239,31 @@ viewWord isChecked wordIndex word =
     let
         viewSyllableOption : Int -> Syllable -> Tone -> Html Msg
         viewSyllableOption syllableIndex syllable tone =
-            button
+            let
+                syllableText =
+                    Syllable.getTone tone syllable
+            in
+            label
                 [ class "option"
                 , classList [ ( "selected", syllable.selection == Just tone ) ]
-                , onClick
-                    (Selection { wordIndex = wordIndex, syllableIndex = syllableIndex, tone = tone })
                 ]
-                [ text (Syllable.getTone tone syllable) ]
+                [ span [ class "option-label" ] [ text syllableText ]
+                , input
+                    [ type_ "radio"
+                    , name
+                        (String.concat
+                            [ Syllable.getTone Fifth syllable
+                            , String.fromInt wordIndex
+                            , String.fromInt syllableIndex
+                            ]
+                        )
+                    , value syllableText
+                    , checked (syllable.selection == Just tone)
+                    , onClick (Selection { wordIndex = wordIndex, syllableIndex = syllableIndex, tone = tone })
+                    , onFocus (Selection { wordIndex = wordIndex, syllableIndex = syllableIndex, tone = tone })
+                    ]
+                    []
+                ]
 
         viewChecked : Syllable -> Html Msg
         viewChecked syllable =
