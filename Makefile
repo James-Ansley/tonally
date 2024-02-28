@@ -1,43 +1,26 @@
-in := src/Tonally.elm
-out := elm.js
-
-source := ./site
-build := ./build
-
 cleanCssOpts := -O1 all:on -O2 all:on
 htmlMinifierOpts := --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --minify-css true --minify-js true
 uglifyOpts := pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9],pure_getters,keep_fargs=false,unsafe_comps,unsafe
 
-build : src site
-	make clean
-	mkdir -p ${build}
-	cp -a ${source}/* ${build}
+build: clean
+	mkdir -p build
+	cp -a site/* build
 
-	find "${build}" -type f -name "*.js" | xargs -I{} uglifyjs {} --compress --mangle --output {}
-	cleancss ${cleanCssOpts} --batch "${build}/*.css" --batch-suffix ''
-	find "${build}" -type f -name "*.html" | xargs -I{} html-minifier ${htmlMinifierOpts} --output {} {}
+	find build -type f -name "*.js" \
+		| xargs -I{} uglifyjs {} --compress --mangle --output {}
+	cleancss ${cleanCssOpts} --batch build/*.css --batch-suffix ''
+	find build -type f -name "*.html" \
+		| xargs -I{} html-minifier ${htmlMinifierOpts} --output {} {}
 
-	elm make --optimize --output=${build}/${out} ${in}
-	uglifyjs ${build}/${out} --compress "${uglifyOpts}" | uglifyjs --mangle --output ${build}/${out}
+	elm make --optimize --output=build/elm.js src/Tonally.elm
+	uglifyjs build/elm.js --compress "${uglifyOpts}" \
+		| uglifyjs --mangle --output build/elm.js
 
 	@echo DONE!
 
-site/elm.js : src checks
-	elm make --optimize --output=${source}/${out} ${in}
+site/elm.js:
+	elm make --optimize --output=site/elm.js src/Tonally.elm
 
-clean : checks
-	rm -f ${source}/elm.js
-	rm -rf ${build}
-
-checks :
-	@if [[ -z "${build}" || ${build} -ef $$HOME || ${build} -ef / ]]; then \
-  		echo "Build directory is: \`${build}\`" >&2; \
-  		echo "Build directory should not be root, home, or empty" >&2; \
-  		exit 1; \
-	fi
-
-	@if [[ -z "${source}" || ${source} -ef $$HOME || ${source} -ef / ]]; then \
-  		echo "Source directory is: \`${source}\`" >&2; \
-  		echo "Source directory should not be root, home, or empty" >&2; \
-  		exit 1; \
-	fi
+clean:
+	rm -f site/elm.js
+	rm -rf build
