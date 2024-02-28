@@ -15,7 +15,7 @@
 :root {
     color: var(--primary);
     box-sizing: border-box;
-    font-family: Helvetica, SimSun, pingfang SC, Microsoft YaHei, serif;
+    font-family: Helvetica, pingfang SC, Microsoft YaHei, SimSun, sans-serif;
 
     --border-width: 0.225rem;
     --outline-width: 0.3rem;
@@ -63,7 +63,7 @@ button:disabled, input:disabled {
     text-align: center;
 }
 
-button, .answer, label   {
+button, .answer, label {
     user-select: none;
 }
 
@@ -108,6 +108,7 @@ button, .answer, label   {
     position: sticky;
 }
 
+/* Possibly use `label:has(input:checked)` when firefox support is better */
 .option.selected {
     font-weight: bold;
     letter-spacing: 0;
