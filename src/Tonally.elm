@@ -38,7 +38,7 @@ type alias Question =
 type Model
     = Loading
     | Error String
-    | Loaded (Array Phrase) Int Question
+    | Loaded { phrases : Array Phrase, currentPhraseIndex : Int, question : Question }
 
 
 init : () -> ( Model, Cmd Msg )
@@ -107,22 +107,30 @@ update msg model =
         ( Error _, _ ) ->
             ( model, Cmd.none )
 
-        ( Loaded phrases index question, Selection selection ) ->
-            ( Loaded phrases index { question | options = updateSelection selection question.options }
+        ( Loaded data, Selection selection ) ->
+            let
+                question =
+                    data.question
+            in
+            ( Loaded { data | question = { question | options = updateSelection selection question.options } }
             , Cmd.none
             )
 
-        ( Loaded phrases index question, Check ) ->
+        ( Loaded data, Check ) ->
+            let
+                question =
+                    data.question
+            in
             if canCheck question.isChecked question.options then
-                ( Loaded phrases index { question | isChecked = True }, Cmd.none )
+                ( Loaded { data | question = { question | isChecked = True } }, Cmd.none )
 
             else
                 ( model, Cmd.none )
 
-        ( Loaded phrases index _, RequestNewPhrase ) ->
+        ( Loaded data, RequestNewPhrase ) ->
             let
                 newIndex =
-                    modBy (Array.length phrases) (index + 1)
+                    modBy (Array.length phrases) (data.currentPhraseIndex + 1)
             in
             ( updateCurrentQuestion "unexpected error: cannot load new phrase" phrases newIndex
             , Cmd.none
@@ -143,7 +151,11 @@ updateCurrentQuestion errorMsg phrases newQuestionIndex =
     in
     case question of
         Just phrase ->
-            Loaded phrases newQuestionIndex { text = phrase.text, options = phrase.options, isChecked = False }
+            Loaded
+                { phrases = phrases
+                , currentPhraseIndex = newQuestionIndex
+                , question = { text = phrase.text, options = phrase.options, isChecked = False }
+                }
 
         Nothing ->
             Error errorMsg
@@ -178,38 +190,49 @@ updateSelection selection words =
 view : Model -> Html Msg
 view model =
     div [ attribute "role" "main" ] <|
-        case model of
-            Error message ->
-                [ button
-                    [ onClick ToggleLightMode ]
-                    [ text "toggle light/dark" ]
-                , p [ class "message" ] [ text message ]
-                ]
+        List.concat
+            [ [ button [ onClick ToggleLightMode ] [ text "toggle light/dark" ] ]
+            , case model of
+                Error message ->
+                    viewError message
 
-            Loading ->
-                [ button [ onClick ToggleLightMode ] [ text "toggle light/dark" ]
-                , p [ class "message" ] [ text "loading..." ]
-                ]
+                Loading ->
+                    viewLoading ()
 
-            Loaded _ _ question ->
-                [ button [ onClick ToggleLightMode ] [ text "toggle light/dark" ]
-                , p [ class "phrase" ] [ text question.text ]
-                , p [ class "phrase" ] [ text (viewSelectedPinyin question.isChecked question.options) ]
-                , div [ class "options" ] <|
-                    List.indexedMap (viewWord question.isChecked) question.options
-                , div
-                    [ class "button-bar" ]
-                    [ button
-                        [ class "bottom-button"
-                        , disabled (not (canCheck question.isChecked question.options))
-                        , onClick Check
-                        ]
-                        [ text "check" ]
-                    , button
-                        [ class "bottom-button", onClick RequestNewPhrase ]
-                        [ text "try another" ]
-                    ]
-                ]
+                Loaded data ->
+                    viewQuestion data.question
+            ]
+
+
+viewError : String -> List (Html Msg)
+viewError message =
+    [ p [ class "message" ] [ text message ] ]
+
+
+viewLoading : () -> List (Html Msg)
+viewLoading _ =
+    [ p [ class "message" ] [ text "loading..." ] ]
+
+
+viewQuestion : Question -> List (Html Msg)
+viewQuestion question =
+    [ p [ class "phrase" ] [ text question.text ]
+    , p [ class "phrase" ] [ text (viewSelectedPinyin question.isChecked question.options) ]
+    , div [ class "options" ] <|
+        List.indexedMap (viewWord question.isChecked) question.options
+    , div
+        [ class "button-bar" ]
+        [ button
+            [ class "bottom-button"
+            , disabled (not (canCheck question.isChecked question.options))
+            , onClick Check
+            ]
+            [ text "check" ]
+        , button
+            [ class "bottom-button", onClick RequestNewPhrase ]
+            [ text "try another" ]
+        ]
+    ]
 
 
 viewSelectedPinyin : Bool -> List Word -> String
@@ -270,9 +293,7 @@ viewWord isChecked wordIndex word =
 
         viewSyllable : Int -> Syllable -> Html Msg
         viewSyllable syllableIndex syllable =
-            div
-                [ class "syllable" ]
-            <|
+            div [ class "syllable" ] <|
                 List.concat
                     [ List.map (viewSyllableOption syllableIndex syllable) tones
                     , [ viewChecked syllable ]

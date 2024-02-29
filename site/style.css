@@ -105,7 +105,7 @@ button, .answer, label {
 
 .option .option-label {
     z-index: 2;
-    position: sticky;
+    position: inherit;
 }
 
 /* Possibly use `label:has(input:checked)` when firefox support is better */
