@@ -14,8 +14,9 @@
 
 :root {
     color: var(--primary);
-    box-sizing: border-box;
     font-family: Helvetica, pingfang SC, Microsoft YaHei, SimSun, sans-serif;
+
+    box-sizing: border-box;
 
     --border-width: 0.225rem;
     --outline-width: 0.3rem;
@@ -26,6 +27,15 @@
     --Large: 1.5rem;
     --large: 1.2rem;
     --normal: 1rem;
+}
+
+:root, body {
+    margin: 0;
+    padding: 0;
+}
+
+div[role="main"] {
+    overflow: scroll;
 }
 
 body {
@@ -93,6 +103,7 @@ button, .answer, label {
     padding: 1em;
     letter-spacing: 1px;
     position: relative;
+    line-height: 1;
 }
 
 .option input {
