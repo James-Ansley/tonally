@@ -20,7 +20,10 @@
 
     --border-width: 0.225rem;
     --outline-width: 0.3rem;
+    --outline-offset: 0.125em;
     --border-radius: 0.5em;
+
+    --outline-space: calc(var(--outline-width) + var(--outline-offset));
 
     --Huge: 2.5rem;
     --huge: 2rem;
@@ -29,17 +32,12 @@
     --normal: 1rem;
 }
 
-:root, body {
-    margin: 0;
-    padding: 0;
-}
-
-div[role="main"] {
-    overflow: scroll;
-}
-
 body {
     background-color: var(--background);
+}
+
+body, div[role="main"] {
+    max-width: 100%;
 }
 
 button, input {
@@ -50,7 +48,7 @@ button, input {
 button:focus, input:focus {
     text-decoration: underline;
     outline: var(--outline-width) dashed var(--primary);
-    outline-offset: 0.125em;
+    outline-offset: var(--outline-offset);
     z-index: 1;
 }
 
@@ -84,10 +82,13 @@ button, .answer, label {
 }
 
 .options {
+    padding: var(--outline-space);
     font-size: var(--Large);
     display: flex;
     gap: 2ch;
-    justify-content: center;
+    justify-content: safe center;
+    max-width: 100%;
+    overflow-x: scroll;
 }
 
 .word {
@@ -129,8 +130,10 @@ button, .answer, label {
 .button-bar {
     font-size: var(--huge);
     display: flex;
+    flex-wrap: wrap;
     gap: 2ch;
     justify-content: center;
+    max-width: 100%;
 }
 
 .bottom-button {
